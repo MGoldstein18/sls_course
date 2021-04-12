@@ -13,6 +13,8 @@ async function createAuction(event, context) {
   const endDate = new Date();
   endDate.setHours(now.getHours() + 1);
 
+  const { email } = event.requestContext.authorizer;
+
   const auction = {
     id: uuid(),
     title,
@@ -22,6 +24,7 @@ async function createAuction(event, context) {
     highestBid: {
       amount: 0,
     },
+    seller: email
   };
 
   try {
