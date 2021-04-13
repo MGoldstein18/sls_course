@@ -1,12 +1,12 @@
-import { getAuctionById } from "./getAuction.js";
-import { uploadPictureToS3 } from "../lib/uploadPictureToS3.js";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
-import createError from "http-errors";
-import { setAuctionPictureUrl } from "../lib/setAuctionPictureUrl.js";
+import cors from "@middy/http-cors";
 import validator from "@middy/validator";
+import createError from "http-errors";
 import uploadAuctionPictureSchema from "../lib/schemas/uploadAuctionSchema.js";
-import cors from '@middy/http-cors'
+import { getAuctionById } from "./getAuction.js";
+import { uploadPictureToS3 } from "../lib/uploadPictureToS3.js";
+import { setAuctionPictureUrl } from "../lib/setAuctionPictureUrl.js";
 
 export async function uploadAuctionPicture(event) {
   const { id } = event.pathParameters;
@@ -42,4 +42,7 @@ export async function uploadAuctionPicture(event) {
   };
 }
 
-export const handler = middy(uploadAuctionPicture).use(httpErrorHandler()).use(validator({inputSchema: uploadAuctionPictureSchema})).use(cors());
+export const handler = middy(uploadAuctionPicture)
+  .use(httpErrorHandler())
+  .use(validator({ inputSchema: uploadAuctionPictureSchema }))
+  .use(cors());
