@@ -1,11 +1,15 @@
-import AWS from "aws-sdk";
+import * as AWS from "aws-sdk";
 import commonMiddleware from "../lib/commonMiddleware.js";
-import createError from "http-errors";
+import * as createError from "http-errors";
+import { Handler } from "aws-lambda";
+import { HandlerResponse } from "./createAuction.js";
+
+type getFunction = (a: string) => object;
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-export async function getAuctionById(id) {
-  let auction;
+export const getAuctionById: getFunction = async (id) => {
+  let auction: object;
 
   try {
     const result = await dynamodb
@@ -26,16 +30,19 @@ export async function getAuctionById(id) {
   }
 
   return auction;
-}
+};
 
-async function getAuction(event, context) {
-  const { id } = event.pathParameters;
-  const auction = await getAuctionById(id);
+const originalHandler: Handler<any, HandlerResponse> = async (
+  event,
+  context
+) => {
+  const { id }: { id: string } = event.pathParameters;
+  const auction: object = getAuctionById(id);
 
   return {
     statusCode: 200,
     body: JSON.stringify(auction),
   };
-}
+};
 
-export const handler = commonMiddleware(getAuction);
+export const handler = commonMiddleware(originalHandler);

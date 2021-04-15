@@ -1,9 +1,11 @@
-import AWS from "aws-sdk";
+import * as AWS from "aws-sdk";
+
+type getEndedFunction = () => Promise<AWS.DynamoDB.DocumentClient.ItemList>;
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-export async function getEndedAuctions() {
-  const now = new Date();
+export const getEndedAuctions: getEndedFunction = async () => {
+  const now: Date = new Date();
 
   const params = {
     TableName: process.env.AUCTIONS_TABLE_NAME,
@@ -20,4 +22,4 @@ export async function getEndedAuctions() {
 
   const result = await dynamodb.query(params).promise();
   return result.Items;
-}
+};

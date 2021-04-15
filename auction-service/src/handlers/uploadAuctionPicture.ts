@@ -1,32 +1,36 @@
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import cors from "@middy/http-cors";
-import validator from "@middy/validator";
-import createError from "http-errors";
-import uploadAuctionPictureSchema from "../lib/schemas/uploadAuctionSchema.js";
+import * as createError from "http-errors";
 import { getAuctionById } from "./getAuction.js";
 import { uploadPictureToS3 } from "../lib/uploadPictureToS3.js";
 import { setAuctionPictureUrl } from "../lib/setAuctionPictureUrl.js";
+import { Handler } from "aws-lambda";
+import { HandlerResponse, Auction } from "./createAuction.js";
 
-export async function uploadAuctionPicture(event) {
-  const { id } = event.pathParameters;
+export interface PicUrl{
+  Location?: string;
+}
 
-  const auction = await getAuctionById(id);
+const originalHandler: Handler<any, HandlerResponse> = async (event) => {
+  const { id }: { id: string } = event.pathParameters;
 
-  const { email } = event.requestContext.authorizer;
+  const auction: Auction = getAuctionById(id);
+
+  const { email }: { email: string } = event.requestContext.authorizer;
 
   if (auction.seller !== email) {
     throw new createError.Forbidden("You are not the seller of this auction");
   }
 
-  const base64 = event.body.replace(/^data:image\/\w+;base64,/, "");
+  const base64: string = event.body.replace(/^data:image\/\w+;base64,/, "");
 
   const buffer = Buffer.from(base64, "base64");
 
-  let updatedAuction;
+  let updatedAuction: Auction;
 
   try {
-    const pictureUrl = await uploadPictureToS3(auction.id + ".jpg", buffer);
+    const pictureUrl = await uploadPictureToS3(auction.id + ".jpg", buffer.toString());
     updatedAuction = await setAuctionPictureUrl(
       auction.id,
       pictureUrl.Location
@@ -40,9 +44,8 @@ export async function uploadAuctionPicture(event) {
     statusCode: 200,
     body: JSON.stringify(updatedAuction),
   };
-}
+};
 
-export const handler = middy(uploadAuctionPicture)
+export const handler = middy(originalHandler)
   .use(httpErrorHandler())
-  .use(validator({ inputSchema: uploadAuctionPictureSchema }))
   .use(cors());

@@ -1,26 +1,29 @@
-import AWS from "aws-sdk";
+import * as AWS from "aws-sdk";
 import commonMiddleware from "../lib/commonMiddleware.js";
-import createError from "http-errors";
+import * as createError from "http-errors";
 import { getAuctionById } from "./getAuction.js";
-import validator from "@middy/validator";
-//import placeBidSchema from "../lib/schemas/placeBidSchema.js";
+import { Handler } from "aws-lambda";
+import { HandlerResponse, Auction } from "./createAuction.js";
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-async function placeBid(event, context) {
-  const { id } = event.pathParameters;
-  const { amount } = event.body;
+const originalHandler: Handler<any, HandlerResponse> = async (
+  event,
+  context
+) => {
+  const { id }: { id: string } = event.pathParameters;
+  const { amount }: { amount: number } = event.body;
 
-  const auction = await getAuctionById(id);
+  const auction: Auction = getAuctionById(id);
 
-  const { email } = event.requestContext.authorizer;
+  const { email }: { email: string } = event.requestContext.authorizer;
 
-  if(email === auction.seller){
-    throw new createError.Forbidden('You may not bid on your own auctions!')
+  if (email === auction.seller) {
+    throw new createError.Forbidden("You may not bid on your own auctions!");
   }
 
-  if(email === auction.highestBid.bidder){
-    throw new createError.Forbidden('You are already the highest bidder!')
+  if (email === auction.highestBid.bidder) {
+    throw new createError.Forbidden("You are already the highest bidder!");
   }
 
   if (auction.status !== "OPEN") {
@@ -59,9 +62,6 @@ async function placeBid(event, context) {
     statusCode: 200,
     body: JSON.stringify(updatedAuction),
   };
-}
+};
 
-export const handler = commonMiddleware(placeBid);
-//.use(
-//validator({ inputSchema: placeBidSchema })
-//);
+export const handler = commonMiddleware(originalHandler);

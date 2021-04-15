@@ -5,6 +5,9 @@
   "author": "Ariel Weinberger <ariel@codingly.io>",
   "license": "MIT",
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.75",
+    "@types/http-errors": "^1.8.0",
+    "@types/node": "^14.14.37",
     "babel-core": "^6.25.0",
     "babel-loader": "^7.1.1",
     "babel-plugin-transform-runtime": "^6.23.0",

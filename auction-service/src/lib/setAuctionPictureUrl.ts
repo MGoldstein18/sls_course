@@ -1,8 +1,14 @@
-import AWS from "aws-sdk";
+import * as AWS from "aws-sdk";
+import { PicUrl } from "../handlers/uploadAuctionPicture.js";
+
+type setAuctionPicUrl = (id: string, pictureUrl: PicUrl) => any;
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-export async function setAuctionPictureUrl(id, pictureUrl) {
+export const setAuctionPictureUrl: setAuctionPicUrl = async (
+  id,
+  pictureUrl
+) => {
   const params = {
     TableName: process.env.AUCTIONS_TABLE_NAME,
     Key: { id },
@@ -15,4 +21,4 @@ export async function setAuctionPictureUrl(id, pictureUrl) {
 
   const result = await dynamodb.update(params).promise();
   return result.Attributes;
-}
+};

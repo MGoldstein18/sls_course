@@ -3,8 +3,9 @@ import httpJsonBodyParser from "@middy/http-json-body-parser";
 import httpEventNormalizer from "@middy/http-event-normalizer";
 import httpErrorHandler from "@middy/http-error-handler";
 import cors from '@middy/http-cors'
+import { Handler } from "aws-lambda";
 
-export default handler => middy(handler).use([
+export default (handler: Handler<any, any>) => middy(handler).use([
     httpErrorHandler(),
     httpJsonBodyParser(),
     httpEventNormalizer(),

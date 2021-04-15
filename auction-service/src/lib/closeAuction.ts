@@ -1,10 +1,13 @@
-import AWS from "aws-sdk";
+import * as AWS from "aws-sdk";
+import { Auction } from "../handlers/createAuction.js";
+
+type closeFunction = (a: Auction) => any;
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 const sqs = new AWS.SQS();
 
-export async function closeAuctions(auction) {
+export const closeAuctions: closeFunction = async (auction) => {
   const params = {
     TableName: process.env.AUCTIONS_TABLE_NAME,
     Key: { id: auction.id },
@@ -58,4 +61,4 @@ export async function closeAuctions(auction) {
     .promise();
 
   return Promise.all([notifySeller, notifyBidder]);
-}
+};

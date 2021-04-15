@@ -1,14 +1,17 @@
-import AWS from "aws-sdk";
-import createError from "http-errors";
-import validator from "@middy/validator";
+import * as AWS from "aws-sdk";
+import * as createError from "http-errors";
 import commonMiddleware from "../lib/commonMiddleware.js";
-import getAuctionsSchema from "../lib/schemas/getAuctionsSchema.js";
+import { Handler } from "aws-lambda";
+import { HandlerResponse } from "./createAuction.js";
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-async function getAuctions(event, context) {
-  const { status } = event.queryStringParameters;
-  let auctions;
+const originalHandler: Handler<any, HandlerResponse> = async (
+  event,
+  context
+) => {
+  const { status }: { status: string } = event.queryStringParameters;
+  let auctions: object;
 
   const params = {
     TableName: process.env.AUCTIONS_TABLE_NAME,
@@ -35,7 +38,6 @@ async function getAuctions(event, context) {
     statusCode: 200,
     body: JSON.stringify(auctions),
   };
-}
+};
 
-export const handler = commonMiddleware(getAuctions);
-//.use(validator({ inputSchema: getAuctionsSchema, useDefaults: true }));
+export const handler = commonMiddleware(originalHandler);
