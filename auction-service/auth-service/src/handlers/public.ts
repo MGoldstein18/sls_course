@@ -1,4 +1,7 @@
-export async function handler(event, context) {
+import { Handler } from "aws-lambda";
+import { HandlerResponse } from "../../../src/handlers/createAuction.js";
+
+export const handler: Handler <any, HandlerResponse> = async (event, context) => {
   return {
     statusCode: 200,
     headers: {
