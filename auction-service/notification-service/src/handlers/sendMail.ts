@@ -1,8 +1,10 @@
-import AWS from "aws-sdk";
+import * as AWS from "aws-sdk";
+import { Handler } from "aws-lambda";
+import { HandlerResponse } from "../../../src/handlers/createAuction.js";
 
 const ses = new AWS.SES({ region: "eu-west-1" });
 
-async function sendMail(event, context) {
+export const handler: Handler<any, any> = async (event, context) => {
   const record = event.Records[0];
 
   const email = JSON.parse(record.body);
@@ -32,6 +34,4 @@ async function sendMail(event, context) {
   } catch (error) {
     console.error(error);
   }
-}
-
-export const handler = sendMail;
+};
