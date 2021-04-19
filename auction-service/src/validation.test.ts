@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 
-const validationTest = require("./validationFunction.ts");
+const Validator = require("./Validator.ts");
 
 const schema = Joi.object({
   status: Joi.string().valid("OPEN", "CLOSED").required(),
@@ -27,21 +27,21 @@ const notPresent = {
 };
 
 test('validates "OPEN"', () => {
-  expect(validationTest(open, schema)).toBe(undefined);
+  expect(() => Validator.validate(open, schema)).not.toBeNull();
 });
 
 test('validates "CLOSED"', () => {
-  expect(validationTest(closed, schema)).toBe(undefined);
+  expect(() => Validator.validate(closed, schema)).not.toBeNull();
 });
 
 test("throws error for not a string", () => {
-  expect(() => validationTest(notString, schema)).toThrow();
+  expect(() => Validator.validate(notString, schema)).toThrow();
 });
 
 test("throws error for not valid", () => {
-  expect(() => validationTest(notValid, schema)).toThrow();
+  expect(() => Validator.validate(notValid, schema)).toThrow();
 });
 
 test("throws error for not present", () => {
-  expect(() => validationTest(notPresent, schema)).toThrow();
+  expect(() => Validator.validate(notPresent, schema)).toThrow();
 });
